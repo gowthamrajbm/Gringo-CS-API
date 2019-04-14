@@ -1,6 +1,6 @@
 module.exports = {
   logging: false,
   db: {
-    url: 'mongodb://localhost/api-design-express-test'
+    url: 'mongodb://localhost/api-design'
   }
 }

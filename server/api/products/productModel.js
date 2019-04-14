@@ -2,16 +2,25 @@ const mongoose = require('mongoose'),
     Schema = mongoose.Schema
 
 const ProductSchema = new Schema({
-  username: {
-    type: String,
-    required: true,
-    unique: true
+  name: {
+    type: String
   },
-
-  password: {
-    type: String,
-    required: true
-  }
+  slug: String,
+  description: String,
+  shortDescription:String,
+  image: String,
+  tags: [{
+      type: String
+  }],
+  // timestamps
+  createdOn: Date,
+  updatedOn:{
+    type:Date,
+    default:Date.now
+  },
+  // user details
+  createdBy:String,
+  updatedBy:String
 })
 
 module.exports = mongoose.model('product', ProductSchema)

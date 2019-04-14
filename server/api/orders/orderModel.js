@@ -17,6 +17,15 @@ const OrderSchema = new Schema({
       ref: 'product'
   },
   orderId: String,
+  // timestamps
+  createdOn: Date,
+  updatedOn:{
+    type:Date,
+    default:Date.now
+  },
+  // userAccount details
+  createdBy:String,
+  updatedBy:String
 })
 
 module.exports = mongoose.model('order', OrderSchema)

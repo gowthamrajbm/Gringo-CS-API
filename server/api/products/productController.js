@@ -1,79 +1,58 @@
-const Product = require('./productModel'),
-  _ = require('lodash'),
-  logger = require('../../util/logger');
+const Product = require('./productModel');
 
-exports.params = function(req, res, next, id){
-  User.findById(id)
-    .select('-password')
-    .exec()
-    .then(function(user){
-      if(!user){
-        next(new Error('No user with that id'))
-      } else {
-        req.user = user
-        next()
+module.exports = {
+    findAll: async(req, res) => {
+        try{
+          const product = await Product.find({}).select('-password');
+          res.status(200).json(product)
+        }catch(err){
+            console.log(err);
+            res.status(500).send({message: "Some error occurred while retrieving products."});
+        }
+    },
+    findOne: async(req, res) => {
+      const {id} = req.params
+      try{
+          const product = await Product.findById(id);
+          res.status(201).json(product)
+      }catch(err){
+          if(err) 
+              if(err.kind === 'ObjectId') return "Product not found with id " + id;
+          return "Error retrieving product with id " + id;
       }
-    }, function(err){
-      next(err)
-    })
-}
-
-exports.get = function(req, res, next){
-  User.find({})
-    .select('-password')
-    .exec()
-    .then(function(users){
-      res.json(users.map(function(user){
-        return user.toJson()
-      }))
-    }, function(err){
-      next(err)
-    })
-}
-
-exports.getOne = function(req, res, next){
-  var user = req.user.toJson()
-  res.json(user.toJson())
-}
-
-exports.put = function(req, res, next){
-  var user = req.user
-  var update = req.body
-  _.merge(user, update)
-
-  user.save(function(err, saved){
-    if(err){
-      next(err)
-    } else {
-      res.json(saved.toJson())
+    },
+    update: async(req, res) => {
+      const {id} = req.params
+      const obj = req.body
+      try{
+          const product = await Product.findByIdAndUpdate(id, obj);
+          res.status(200).json({success: true, product})
+      }catch(err){
+          if(err) 
+              if(err.kind === 'ObjectId') return "Product not found with id " + id;
+          return "Error retrieving product with id " + id;
+      }
+    },
+    create: async(req, res)=>{
+      console.log(req.body);
+      try{
+          const newProduct = new Product(req.body)
+          const product = await newProduct.save();
+          res.status(201).json(product)
+      }catch(err){
+          console.log(err);
+          res.status(500).send({message: "Problem in sending data"});
+      }
+    },
+    delete: async(req, res)=>{
+      const {id} = req.params
+      try{
+          const product = await Product.findByIdAndDelete(id);
+          res.send({message: "Product deleted successfully with id"})
+      }catch(err){
+          if(err) 
+              if(err.kind === 'ObjectId') return "Product not found with id " + id;
+          return "Error retrieving product with id " + id;
+      }
     }
-  })
-}
-
-exports.post = function(req, res, next){
-  var newUser = new User(req.body)
-
-  newUser.save(function(err, user){
-    if(err) {
-      return next(err)
-    }
-
-    var token = signToken(user._id)
-    res.json({token: token})
-  })
-}
-
-exports.delete = function(req, res, next){
-  req.user.remove(function(err, removed){
-    if(err){
-      next(err)
-    } else {
-      res.json(removed.toJson())
-    }
-  })
-}
-
-exports.me = function(req, res){
-  logger.log(req.user)
-  return res.json(req.user.toJson())
 }

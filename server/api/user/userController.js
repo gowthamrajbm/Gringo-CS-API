@@ -1,80 +1,59 @@
-const User = require('./userModel'),
-  _ = require('lodash'),
-  signToken = require('../../auth/auth').signToken,
-  logger = require('../../util/logger');
+const User = require('./userModel');
 
-exports.params = (req, res, next, id) => {
-  User.findById(id)
-    .select('-password')
-    .exec()
-    .then((user) => {
-      if(!user){
-        next(new Error('No user with that id'))
-      } else {
-        req.user = user
-        next()
+module.exports = {
+  findAll: async(req, res) => {
+      try{
+        const user = await User.find({}).select('-password');
+        res.status(200).json(user)
+      }catch(err){
+          console.log(err);
+          res.status(500).send({message: "Some error occurred while retrieving users."});
       }
-    }, (err) => {
-      next(err)
-    })
-}
-
-exports.get = (req, res, next) => {
-  User.find({})
-    .select('-password')
-    .exec()
-    .then((users) => {
-      res.json(users.map((user) => {
-        return user.toJson()
-      }))
-    }, (err) => {
-      next(err)
-    })
-}
-
-exports.getOne = (req, res, next) => {
-  var user = req.user.toJson()
-  res.json(user.toJson())
-}
-
-exports.put = (req, res, next) => {
-  var user = req.user
-  var update = req.body
-  _.merge(user, update)
-
-  user.save((err, saved) => {
-    if(err){
-      next(err)
-    } else {
-      res.json(saved.toJson())
+  },
+  findOne: async(req, res) => {
+    const {id} = req.params
+    try{
+        const user = await User.findById(id);
+        res.status(201).json(user)
+    }catch(err){
+        if(err) 
+            if(err.kind === 'ObjectId') return "User not found with id " + id;
+        return "Error retrieving user with id " + id;
     }
-  })
-}
-
-exports.post = (req, res, next)=>{
-  var newUser = new User(req.body)
-
-  newUser.save((err, user)=>{
-    if(err) {
-      return next(err)
+  },
+  update: async(req, res) => {
+    const {id} = req.params
+    const obj = req.body
+    try{
+        const user = await User.findByIdAndUpdate(id, obj);
+        res.status(200).json({success: true})
+    }catch(err){
+        if(err) 
+            if(err.kind === 'ObjectId') return "User not found with id " + id;
+        return "Error retrieving user with id " + id;
     }
-
-    var token = signToken(user._id)
-    res.json({token: token})
-  })
-}
-
-exports.delete = (req, res, next)=>{
-  req.user.remove((err, removed)=>{
-    if(err){
-      next(err)
-    } else {
-      res.json(removed.toJson())
+  },
+  create: async(req, res)=>{
+    // Create and Save a new Note
+    console.log(req.body);
+    try{
+        const newUser = new User(req.body)
+        const user = await newUser.save();
+        res.status(201).json(user)
+    }catch(err){
+        console.log(err);
+        res.status(500).send({message: "Problem in sending data"});
     }
-  })
-}
-
-exports.me = (req, res)=>{
-  logger.log(req.user)
-  return res.json(req.user.toJson())
+  },
+  delete: async(req, res)=>{
+    const {id} = req.params
+    try{
+        const user = await User.findByIdAndDelete(id);
+        res.send({message: "User deleted successfully with id" + user.id})
+    }catch(err){
+        if(err) 
+            if(err.kind === 'ObjectId') return "User not found with id " + id;
+        return "Error retrieving user with id " + id;
+    }
+  }
 }

@@ -12,8 +12,8 @@ mongoose.connect(config.db.url, { useNewUrlParser: true })
   success => logger.log('MongoDB Connection Successful.' + config.db.url),
   err => logger.error('MongoDB Connection Failed. \n' + err)
 );
-mongoose.set('useCreateIndex', true);// removes deprecationWarning
-
+mongoose.set('useCreateIndex', true);
+// removes deprecationWarning
 
 if(config.seed){
   require('./util/seed')
@@ -29,7 +29,6 @@ app.use(function(err, req, res, next){
     res.status(401).send('Invalid token')
     return
   }
-
   logger.error(err.stack)
   res.status(500).send('Oops server error')
 })

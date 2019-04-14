@@ -1,23 +1,87 @@
 const mongoose = require('mongoose'),
-  Schema = mongoose.Schema
+  Schema = mongoose.Schema,
+  validator = require('validator');
 
-var UserSchema = new Schema({
-  username: {
-    type: String,
-    required: true,
-    unique: true
+const UserSchema = new Schema({
+  name: {
+    type: String
   },
-
+  bio: {
+    type: String
+  },
   password: {
+    type: String
+  },
+  email: {
     type: String,
+    lowercase: true,
+		trim:true,
+		validate:{
+			isAsync:true,
+			validator:validator.isEmail,
+			message:'{VALUE} is not a valid email'
+		}
+  },
+  userType: {
+    type: String,
+    enum: ['user', 'admin', 'merchant','delivery']
+  },
+  mobile: {
+    type: Number,
     required: true
-  }
+  },
+  address: [{
+    type: String,
+    enum: ["Home","Work","Shop"],
+    address:String,
+    city:String,
+    state:String,
+    postalCode:Number,
+    landMark:String,
+    geolocation:{
+      type:{
+        type:String,
+        default:'Point'
+      }, 
+      coordinates:[Number]
+    }
+  }],
+  cardDetails: [],
+  // referral Code
+	referralCode:{
+    type:String,
+    uppercase:true
+  },
+  referredBy:{
+      userProfile: String,
+      referralCode:{
+        type:String,
+        uppercase:true
+      }
+  },
+  socialMediaAccounts:[{
+    accountType:{
+      type:String,
+      enum:['Twitter','Facebook','Instagram','LinkedIn','Youtube']
+    },
+    url:String
+  }],
+  googleId:String,
+  facebookId:String,
+  // timestamps
+  createdOn: Date,
+  updatedOn:{
+    type:Date,
+    default:Date.now
+  },
+  // userAccount details
+  createdBy:String,
+  updatedBy:String
 })
 
 UserSchema.pre('save', function(next){
   if(!this.isModified('password'))
     return next()
-
   this.password = this.encryptPassword(this.password)
   next()
 })
