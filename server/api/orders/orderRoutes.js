@@ -1,7 +1,5 @@
 const router = require('express').Router(),
-  controller = require('./orderController'),
-  auth = require('../../auth/auth'),
-  checkUser = [auth.decodeToken(), auth.getFreshUser()]
+  controller = require('./orderController');
 
 router.route('/')
   .get(controller.findAll)
@@ -9,7 +7,7 @@ router.route('/')
 
 router.route('/:id')
   .get(controller.findOne)
-  .put(checkUser, controller.update)
-  .delete(checkUser, controller.delete)
+  .put(controller.update)
+  .delete(controller.delete)
 
 module.exports = router

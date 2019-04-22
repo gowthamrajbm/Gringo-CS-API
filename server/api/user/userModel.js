@@ -30,22 +30,7 @@ const UserSchema = new Schema({
     type: Number,
     required: true
   },
-  address: [{
-    type: String,
-    enum: ["Home","Work","Shop"],
-    address:String,
-    city:String,
-    state:String,
-    postalCode:Number,
-    landMark:String,
-    geolocation:{
-      type:{
-        type:String,
-        default:'Point'
-      }, 
-      coordinates:[Number]
-    }
-  }],
+  address: String,
   cardDetails: [],
   // referral Code
 	referralCode:{

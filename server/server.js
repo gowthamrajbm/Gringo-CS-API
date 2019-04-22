@@ -4,6 +4,7 @@ const express = require('express'),
     mongoose = require('mongoose'),
     config = require('./config/config'),
     logger = require('./util/logger'),
+    passport = require('passport'),
     auth = require('./auth/routes');
 
 mongoose.Promise = global.Promise;
@@ -21,8 +22,11 @@ if(config.seed){
 
 require('./middleware/appMiddleware')(app)
 
-app.use('/api', api)
+app.use(passport.initialize());
+require('./auth/passport')(passport);
+
 app.use('/auth', auth)
+app.use('/api', passport.authenticate('jwt', {session: false}), api)
 
 app.use(function(err, req, res, next){
   if(err.name === 'UnauthorizedError'){
