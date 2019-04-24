@@ -10,12 +10,15 @@ module.exports = {
       if(!req.body.name && !req.body.email){
         return res.status(400).json({ message: 'Name or Email not found'})
       }
-      let us = await User.find()
-      const id = us[0]._id
-      console.log(id)
+      let newUser = await User.aggregate([
+        {$project: {mobile: 1, token: 1, _id: 1, created_at: 1}},
+			  {$sort : { created_at : 1}}
+      ])
+      console.log("checked recent save user ", newUser)
       const obj = {
         email: req.body.email,
-        name: req.body.name
+        name: req.body.name,
+        password: req.body.password 
       }
       let referralCode = `${req.body.name.toUpperCase().split(' ').join('').substring(0, 4)}${uuidv4().substring(0, 4).toUpperCase()}`
       const avatar = gravatar.url(obj.email,{
@@ -28,80 +31,70 @@ module.exports = {
       console.log(obj)
 
       try {
-        let user = await User.findByIdAndUpdate(id, obj)
-        console.log(user)
-        if(user){
-          res.status(200).json({success: true})
-        }
+        let newRegister = await User.findByIdAndUpdate(newUser[0]._id, obj)
+        res.status(200).json(newRegister)
       } catch (error) {
         console.log(error)
         next(error) 
       }
     },
     location: async(req, res, next) => {
-      let us = await User.find()
-      const id = us[0]._id
+      let newUserLogin = await User.aggregate([
+        {$project: {mobile: 1, token: 1, _id: 1, created_at: 1}},
+			  {$sort : { created_at : 1}}
+      ])
+      const id = newUserLogin[0]._id
       console.log(id)
-      const address = req.body.address
+      const obj = {
+        address: req.body.address
+      }
+      console.log(obj.address)
       try {
-        let user = await User.findByIdAndUpdate(id, address)
-        if(user){
-          res.status(200).json({success: true})
-        }
+        let user = await User.findByIdAndUpdate(id, obj)
+        res.status(200).json({user: user})
       } catch (error) {
         next(error)
       }
     },
-    login: async(req, res, next) => {
-      const email= req.body.email, 
-          password = req.body.password;
-
-      const user =  await User.findOne({email: email})
-      if(!user){
-        return res.status(HttpStatus.BAD_REQUEST).json('mobile not found')
+    verifyMobile: async(req,res) => {
+      if(!req.body.mobile && !req.body.type){
+        return res.status(400).json({ message: 'Mobile Number & User type is not found'})
       }
-      bcrypt.compare(password,user.password)
-      .then(isMatch => {
-        if(isMatch){
-          //user matched
-          const payload = {id: user.id, name: user.name, avatar: user.avatar}
-          //sign token
-          jwt.sign(
-            payload, 
-            config.secretOrKey, 
-            {expiresIn: 3600}, (err, token)=>{
-              res.json({
-                success: true,
-                token: 'Bearer ' + token,
-                user: user
-              })
-          }); //after ah hour
-        } else {
-          return res.status(400).json({"message": "Password Incorrect"})
+      var company = "Gringo"
+      try {
+        let user = await User.find({mobile: req.body.mobile})
+        if(user && user.length){
+          return res.status(400).json({ message: 'User already there'})
+        }else{
+          let vmobile = '' + req.body.mobile;
+          let key = company.trim().toLowerCase().split(' ').map(un => un.charAt(0)).join('') + '-' + vmobile.substring(0, 4);
+          var data = {
+            mobile: req.body.mobile,
+            token: key,
+            userType: req.body.type
+          }
+          const userObj = new User(data)
+          const mobileVerification = await userObj.save()
+          res.json({message: `Verify the token key`, success: true, mobileVerification: mobileVerification})
         }
-      }).catch(err => next(err))
+      } catch (error) {
+        
+      }
     },
-    account: (req, res) => {
-      res.json({
-        id: req.user.id,
-        name: req.user.name,
-        email: req.user.email
-      })
-    },
-    sendOTP: async(req, res, next) => {
-        if(!req.body.mobile){
-          return res.status(400).json({ message: 'Mobile Number is not found'})
+    verifyOTP: async(req, res, next) => {
+        if(!req.body.token){
+          return res.status(400).json({ message: 'Token Key is not found'})
         }
         try {
-          let user = await User.find({mobile: req.body.mobile})
-          if(user && user.length){
-            return res.status(400).json({message: "Already registered with Gringo"})
+          let user = await User.find({token: req.body.token})
+          console.log(user)
+          if(user && user[0].email){
+            return res.status(200).json({message: "Already Registered", success: true, user: user})
+          }else if(user && user.length){
+            return res.status(200).json({ message: 'Token Found', token: user.token})
+          }else{
+            return res.status(400).json({ message: 'Token Error'})
           }
-          const {mobile, userType} = req.body
-          var tempData = "generate otp"
-          const userObj = new User({mobile, userType})
-          const userDetail = await userObj.save()
-          res.json({ message: `We have sent an otp on mobile ${userDetail.mobile}`, verifyToken: tempData });
         } catch (error) {
           next(error) 
         }

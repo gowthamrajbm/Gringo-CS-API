@@ -8,6 +8,8 @@ const express = require('express'),
     auth = require('./auth/routes');
 
 mongoose.Promise = global.Promise;
+//{dbName: 'gringo', useNewUrlParser: true },
+// In testing mode 
 mongoose.connect(config.db.url, { useNewUrlParser: true })
 .then(
   success => logger.log('MongoDB Connection Successful.' + config.db.url),

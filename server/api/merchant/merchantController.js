@@ -1,4 +1,5 @@
-const Merchant = require('./merchantModel');
+const Merchant = require('./merchantModel'),
+    User = require('../user/userModel');
 
   module.exports = {
     findAll: async(req, res) => {
@@ -35,13 +36,20 @@ const Merchant = require('./merchantModel');
     },
     create: async(req, res)=>{
       console.log(req.body);
-      try{
-          const newMerchant = new Merchant(req.body)
-          const merchant = await newMerchant.save();
-          res.status(201).json(merchant)
-      }catch(err){
-          console.log(err);
-          res.status(500).send({message: "Problem in sending data"});
+      let newUser = await User.aggregate([
+        {$project: {mobile: 1, _id: 1, userType: 1,created_at: 1}}
+      ])
+      if(newUser[0].userType == 'admin' || newUser[0].userType == 'merchant'){
+        try{
+            const newMerchant = new Merchant(req.body)
+            const merchant = await newMerchant.save();
+            res.status(201).json(merchant)
+        }catch(err){
+            console.log(err);
+            res.status(500).send({message: "Problem in sending data"});
+        }
+      }else{
+        res.status(500).send({message: "You are not authorised to create merchant profile"});
       }
     },
     delete: async(req, res)=>{
