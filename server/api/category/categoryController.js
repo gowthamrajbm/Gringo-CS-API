@@ -1,4 +1,5 @@
-const Category = require('./categoryModel');
+const Category = require('./categoryModel'),
+    Merchant = require('../merchant/merchantModel');
 
 module.exports = {
     findAll: async(req, res) => {
@@ -35,14 +36,19 @@ module.exports = {
     },
     create: async(req, res)=>{
       console.log(req.body);
-      try{
-          const newCategory = new Category(req.body)
-          const category = await newCategory.save();
-          res.status(201).json(category)
-      }catch(err){
-          console.log(err);
-          res.status(500).send({message: "Problem in sending data"});
-      }
+      let newMerchant = await Merchant.aggregate([
+        {$project: {mobile: 1,email:1, _id: 1, merchantType: 1,created_at: 1}}
+      ])
+      if(newMerchant){
+            try{
+                const newCategory = new Category(req.body)
+                const category = await newCategory.save();
+                res.status(201).json(category)
+            }catch(err){
+                console.log(err);
+                res.status(500).send({message: "Problem in sending data"});
+            }
+        }
     },
     delete: async(req, res)=>{
       const {id} = req.params

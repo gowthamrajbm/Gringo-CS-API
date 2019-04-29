@@ -4,7 +4,7 @@ var config = {
   dev: 'development',
   test: 'testing',
   prod: 'production',
-  port: process.env.PORT || 3000,
+  port: process.env.PORT || 3005,
   expireTime: 60 * 24 * 60 * 2, // 2 days in seconds
   secretOrKey: 'secretKey'
 }

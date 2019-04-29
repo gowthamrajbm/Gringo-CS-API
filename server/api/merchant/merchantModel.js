@@ -20,7 +20,6 @@ const MerchantSchema = new Schema({
     enum: ["Restaurant", "Shop", "Medical"]
   },
   address: [{
-    type: String,
     enum: ["Home", "Shop","Other"],
     street: String,
     province: String,

@@ -26,7 +26,7 @@ const UserSchema = new Schema({
     type: String,
     enum: ['user', 'admin', 'merchant','delivery']
   },
-  token: String,
+  accessToken: String,
   mobile: {
     type: Number,
     required: true

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": ""
+    "server": "nodemon index.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

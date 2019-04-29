@@ -8,7 +8,7 @@ var CategorySchema = new Schema({
   },
   categoryType: {
     type: String,
-    enum: []
+    enum: ["veg", "non-veg", "drinks", "sweet","Main Course", "Meals", "Starter"]
   },
   isFeatured: {
     type:Boolean, 

@@ -28,7 +28,7 @@ app.use(passport.initialize());
 require('./auth/passport')(passport);
 
 app.use('/auth', auth)
-app.use('/api', passport.authenticate('jwt', {session: false}), api)
+app.use('/api',  api)
 
 app.use(function(err, req, res, next){
   if(err.name === 'UnauthorizedError'){

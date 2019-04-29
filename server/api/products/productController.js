@@ -1,4 +1,6 @@
-const Product = require('./productModel');
+const Product = require('./productModel'),
+    Merchant = require('../merchant/merchantModel'),
+    joinFun = require('../join/joinFunction');
 
 module.exports = {
     findAll: async(req, res) => {
@@ -33,16 +35,26 @@ module.exports = {
           return "Error retrieving product with id " + id;
       }
     },
-    create: async(req, res)=>{
+    create: async(req, res, next)=>{
       console.log(req.body);
-      try{
-          const newProduct = new Product(req.body)
-          const product = await newProduct.save();
-          res.status(201).json(product)
-      }catch(err){
-          console.log(err);
-          res.status(500).send({message: "Problem in sending data"});
-      }
+      let obj = req.body
+      let newMerchant = await Merchant.aggregate([
+        {$project: {mobile: 1,email:1, _id: 1, merchantType: 1,created_at: 1}}
+      ])
+      if(newMerchant){
+            if (obj.categoryId) {
+                let joinCat = await joinFun.joinCategory(obj.categoryId, next)
+                obj.category = joinCat;
+            }
+            try{
+                const newProduct = new Product(obj)
+                const product = await newProduct.save();
+                res.status(201).json(product)
+            }catch(err){
+                console.log(err);
+                res.status(500).send({message: "Problem in sending data"});
+            }
+        }
     },
     delete: async(req, res)=>{
       const {id} = req.params

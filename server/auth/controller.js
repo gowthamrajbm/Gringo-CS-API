@@ -6,7 +6,7 @@ const uuidv4 = require('uuid/v4'),
   User = require('../api/user/userModel');
 
 module.exports = {
-    register: async (req, res, next) => {
+    register:  async(req, res, next) => {
       if(!req.body.name && !req.body.email){
         return res.status(400).json({ message: 'Name or Email not found'})
       }
@@ -29,14 +29,23 @@ module.exports = {
       obj.avatar = avatar
       obj.referralCode = referralCode
       console.log(obj)
-
-      try {
-        let newRegister = await User.findByIdAndUpdate(newUser[0]._id, obj)
-        res.status(200).json(newRegister)
-      } catch (error) {
-        console.log(error)
-        next(error) 
-      }
+     
+     User.findByIdAndUpdate(newUser[0]._id, obj)
+        .then((response) => {
+          const payload = {id: response._id, name: response.name, email: response.email, mobile: response.mobile, userType: response.userType}
+            jwt.sign(
+              payload, 
+              config.secretOrKey, 
+              {expiresIn: 3600}, (err, token)=>{
+                console.log("token" , token)
+                  res.status(200).json({
+                      success: true,
+                      token: 'Bearer ' + token,
+                      user: response
+                  })
+              });
+            })
+        .catch(err => console.log(err))     
     },
     location: async(req, res, next) => {
       let newUserLogin = await User.aggregate([
@@ -60,17 +69,17 @@ module.exports = {
       if(!req.body.mobile && !req.body.type){
         return res.status(400).json({ message: 'Mobile Number & User type is not found'})
       }
-      var company = "Gringo"
+      var company = "Gringo Delivery Company"
       try {
         let user = await User.find({mobile: req.body.mobile})
         if(user && user.length){
           return res.status(400).json({ message: 'User already there'})
         }else{
           let vmobile = '' + req.body.mobile;
-          let key = company.trim().toLowerCase().split(' ').map(un => un.charAt(0)).join('') + '-' + vmobile.substring(0, 4);
+          let accessToken = company.trim().toLowerCase().split(' ').map(un => un.charAt(0)).join('') + '-' + vmobile.substring(0, 4);
           var data = {
             mobile: req.body.mobile,
-            token: key,
+            accessToken: accessToken,
             userType: req.body.type
           }
           const userObj = new User(data)
@@ -82,16 +91,28 @@ module.exports = {
       }
     },
     verifyOTP: async(req, res, next) => {
-        if(!req.body.token){
+        if(!req.body.accessToken){
           return res.status(400).json({ message: 'Token Key is not found'})
         }
         try {
-          let user = await User.find({token: req.body.token})
+          let user = await User.find({accessToken: req.body.accessToken})
           console.log(user)
           if(user && user[0].email){
-            return res.status(200).json({message: "Already Registered", success: true, user: user})
+            const payload = {id: user[0]._id, name: user[0].name, email: user[0].email, mobile: user[0].mobile, userType: user[0].userType}
+            jwt.sign(
+                payload, 
+                config.secretOrKey, 
+                {expiresIn: 3600}, (err, token)=>{
+                  console.log("token" , token)
+                    res.status(200).json({
+                        message: "Already Registered",
+                        success: true,
+                        token: 'Bearer ' + token,
+                        user: user
+                    })
+                });
           }else if(user && user.length){
-            return res.status(200).json({ message: 'Token Found', token: user.token})
+            return res.status(200).json({ message: 'Token Found', token: user})
           }else{
             return res.status(400).json({ message: 'Token Error'})
           }
