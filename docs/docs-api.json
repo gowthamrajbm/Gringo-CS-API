@@ -1,0 +1,69 @@
+{
+	"swagger": "2.0",
+	"info": {
+		"description": "Welcome to <b>Gringo</b> API docs. This section is maintained as a separate project to help you build more with Gringo Delivery Api.",
+		"version": "1.0.0",
+		"title": "Gringo API",
+		"contact": {
+			"name": "API Support",
+			"email": "support@gringo.com",
+			"url": "http://gringo.com/contact"
+		}
+	},
+	"host": "",
+	"basePath": "",
+	"tags": [
+		{
+			"name": "auth",
+			"description": "The authentication management api",
+			"externalDocs": {
+				"description": "Find out more creating and managing users here",
+				"url": "/auth"
+			}
+		},
+		{
+			"name": "merchants",
+			"description": "The Merchant management api",
+			"externalDocs": {
+				"description": "Find out more creating and managing merchant here",
+				"url": "/api/"
+			}
+		},
+		{
+			"name": "categories",
+			"description": "The categories management api",
+			"externalDocs": {
+				"description": "Find out more creating and managing categories here",
+				"url": "/api/"
+			}
+		},
+		{
+			"name": "products",
+			"description": "The product management api",
+			"externalDocs": {
+				"description": "Find out more creating and managing product here",
+				"url": "/api/"
+			}
+		},
+		{
+			"name": "orders",
+			"description": "The orders management api",
+			"externalDocs": {
+				"description": "Find out more creating and managing orders here",
+				"url": "/api/"
+			}
+		},
+		{
+			"name": "coupons",
+			"description": "The coupons management api",
+			"externalDocs": {
+				"description": "Find out more creating and managing coupons here",
+				"url": "/api/"
+			}
+		}
+	],
+	"schemes": [
+		"http",
+		"https"
+	]
+}

@@ -1,5 +1,6 @@
 const express = require('express'),
     app = express(),
+    subpath = express(),
     api = require('./api/api'),
     mongoose = require('mongoose'),
     config = require('./config/config'),
@@ -26,6 +27,22 @@ require('./middleware/appMiddleware')(app)
 
 app.use(passport.initialize());
 require('./auth/passport')(passport);
+
+app.use("/", subpath);
+
+var swagger = require('swagger-node-express').createNew(subpath);
+app.use(express.static('docs'));
+swagger.setApiInfo({
+  title: "Gringo API",
+  description: "API to do something, manage something...",
+  termsOfServiceUrl: "",
+  contact: "support@gringo.com",
+  license: "",
+  licenseUrl: ""
+});
+app.get('/', function (req, res) {
+  res.sendFile(__dirname + '/../docs/index.html');
+});
 
 app.use('/auth', auth)
 app.use('/api',  api)
