@@ -11,7 +11,7 @@ const express = require('express'),
 mongoose.Promise = global.Promise;
 //{dbName: 'gringo', useNewUrlParser: true },
 // In testing mode 
-mongoose.connect(config.db.url, {dbName: 'gringo', useNewUrlParser: true })
+mongoose.connect(config.db.url, {useNewUrlParser: true })
 .then(
   success => logger.log('MongoDB Connection Successful.' + config.db.url),
   err => logger.error('MongoDB Connection Failed. \n' + err)

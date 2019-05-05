@@ -11,34 +11,46 @@ const MerchantSchema = new Schema({
     type: String,
     required: true
   },
+  slug: String,
   mobile: {
     type: Number,
     required: true
   },
   merchantType: {
-    type: String,
-    enum: ["Restaurant", "Shop", "Medical"]
+    type: [String],
+    enum: ["Restaurant", "Veg", "Non Veg", "Snacks", "Drinks"]
   },
+  offer: String,
   address: [{
-    enum: ["Home", "Shop","Other"],
-    street: String,
-    province: String,
+    branchName: String,
+    address: String,
     city: String,
     state: String,
     country: String,
     pin: Number
   }],
-  ratings: [{
+  openTime : { 
+    type: Number,
+    default: (new Date()).getTime() 
+  },
+  closeTime : { 
+    type: Number, 
+    default: (new Date()).getTime() 
+  },
+  rating: {
     type: Number
-  }],
+  },
   reviews: [{
     type: String
   }],
-  tags: [{
+  cuisines: [{
     type: String
   }],
   // timestamps
-  createdOn: Date,
+  createdOn: {
+    type:Date,
+    default:Date.now
+  },
   updatedOn:{
     type:Date,
     default:Date.now

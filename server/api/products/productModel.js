@@ -10,6 +10,9 @@ const ProductSchema = new Schema({
   category: {},
   description: String,
   shortDescription:String,
+  price: Number,
+  discountPrice: Number,
+  discountPercentage: Number,
   image: String,
   tags: [{
       type: String

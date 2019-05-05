@@ -10,10 +10,8 @@ module.exports = {
       if(!req.body.name && !req.body.email){
         return res.status(400).json({ message: 'Name or Email not found'})
       }
-      let newUser = await User.aggregate([
-        {$project: {mobile: 1, token: 1, _id: 1, created_at: 1}},
-			  {$sort : { created_at : 1}}
-      ])
+      var sort = {'_id': -1}
+      let newUser = await User.find().sort(sort).limit(1)
       console.log("checked recent save user ", newUser)
       const obj = {
         email: req.body.email,
@@ -21,15 +19,8 @@ module.exports = {
         password: req.body.password 
       }
       let referralCode = `${req.body.name.toUpperCase().split(' ').join('').substring(0, 4)}${uuidv4().substring(0, 4).toUpperCase()}`
-      const avatar = gravatar.url(obj.email,{
-        s:'200',  //size
-        r: 'pg', //Rating
-        d:'mm'  //Default
-      })
-      obj.avatar = avatar
       obj.referralCode = referralCode
-      console.log(obj)
-     
+   
      User.findByIdAndUpdate(newUser[0]._id, obj)
         .then((response) => {
           const payload = {id: response._id, name: response.name, email: response.email, mobile: response.mobile, userType: response.userType}
@@ -45,7 +36,30 @@ module.exports = {
                   })
               });
             })
-        .catch(err => console.log(err))     
+        .catch(err => console.log(err))
+    },
+    login: async(req, res, next) =>{
+      const email = req.body.email,
+      password = req.body.password
+ 
+      User.findOne({email, password}).then(user => {
+        console.log("user", user)
+        if(!user){
+            return res.status(400).json('Email not found')
+        }
+        const payload = {id: user._id, name: user.name, email: user.email, mobile: user.mobile, userType: user.userType}
+        //sign token
+        jwt.sign(
+            payload, 
+            config.secretOrKey, 
+            {expiresIn: 3600}, (err, token) => {
+                res.json({
+                    success: true,
+                    token: 'Bearer ' + token,
+                    user: user
+                })
+            })
+      }).catch(err => next(err))
     },
     location: async(req, res, next) => {
       let newUserLogin = await User.aggregate([

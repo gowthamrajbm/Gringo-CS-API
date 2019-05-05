@@ -55,7 +55,10 @@ const UserSchema = new Schema({
   googleId:String,
   facebookId:String,
   // timestamps
-  createdOn: Date,
+  createdOn: {
+    type:Date,
+    default:Date.now
+  },
   updatedOn:{
     type:Date,
     default:Date.now
