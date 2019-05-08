@@ -1,5 +1,7 @@
 const Merchant = require('./merchantModel'),
-    User = require('../user/userModel');
+    User = require('../user/userModel'),
+    Product = require('../products/productModel'),
+    Order = require('../orders/orderModel');
 
   module.exports = {
     findAll: async(req, res) => {
@@ -20,6 +22,40 @@ const Merchant = require('./merchantModel'),
           if(err) 
               if(err.kind === 'ObjectId') return "merchant not found with id " + id;
           return "Error retrieving product with id " + id;
+      }
+    },
+    merchantProduct: async(req, res) => {
+      const {id} = req.params
+      try {
+        const product = await Product.find({merchantId: id})
+        res.status(200).json({success: true, product})
+      } catch (error) {
+          console.log(error)
+      }
+    },
+    openClose: async(req, res) => {
+      const {id} = req.params
+      try{
+          const merchant = await Merchant.findById(id);
+          if(merchant[0].status === "open"){
+            merchant[0].status = "close"
+          }else{
+            merchant[0].status = "open"
+          }
+          res.status(201).json(merchant)
+      }catch(err){
+          if(err) 
+              if(err.kind === 'ObjectId') return "merchant not found with id " + id;
+          return "Error retrieving product with id " + id;
+      }
+    },
+    merchantOrder: async(req, res) => {
+      const {id} = req.params
+      try {
+        const order = await Order.find({merchantId: id})
+        res.status(200).json({success: true, order})
+      } catch (error) {
+          console.log(error)
       }
     },
     update: async(req, res) => {

@@ -9,7 +9,7 @@ var config = {
   secretOrKey: 'secretKey'
 }
 
-process.env.NODE_ENV = process.env.NODE_ENV || config.test;
+process.env.NODE_ENV = process.env.NODE_ENV || config.text;
 config.env = process.env.NODE_ENV;
 
 var envConfig;

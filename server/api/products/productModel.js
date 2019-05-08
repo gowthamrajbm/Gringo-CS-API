@@ -5,6 +5,7 @@ const ProductSchema = new Schema({
   name: {
     type: String
   },
+  merchantId: String,
   slug: String,
   categoryId: String,
   category: {},

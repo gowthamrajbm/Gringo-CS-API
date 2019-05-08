@@ -6,14 +6,15 @@ const OrderSchema = new Schema({
     type: String,
     required: true,
   },
-  customerId :Schema.Types.ObjectId,
+  customerId :String,
   customer:{
-      type: Schema.Types.ObjectId,
-      ref: 'contact'
+      type: String,
+      ref: 'users'
   },
-  productId: Schema.Types.ObjectId,
+  merchantId: String,
+  productId: String,
   product: {
-      type: Schema.Types.ObjectId,
+      type: String,
       ref: 'product'
   },
   orderId: String,

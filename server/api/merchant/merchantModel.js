@@ -1,7 +1,6 @@
 const mongoose = require('mongoose'),
     Schema = mongoose.Schema
 
-// merchant or restaurant
 const MerchantSchema = new Schema({
   title: {
     type: String,
@@ -19,6 +18,10 @@ const MerchantSchema = new Schema({
   merchantType: {
     type: [String],
     enum: ["Restaurant", "Veg", "Non Veg", "Snacks", "Drinks"]
+  },
+  products: {
+    type: String,
+    ref: 'product'
   },
   offer: String,
   address: [{
@@ -60,9 +63,9 @@ const MerchantSchema = new Schema({
   updatedBy:String,
   status:{
     type:String,
-    enum:['active','inactive','deleted'],
+    enum:['open','close'],
     required:true,
-    default:'active'
+    default:'open'
   }
 })
 
